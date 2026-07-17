@@ -159,7 +159,14 @@ export default function Hero({ theme, onToggleTheme }) {
           <p className={`hero-tagline ${taglineFade.className}`} ref={taglineFade.ref} style={taglineFade.style}>
             a full stack developer building fast, ai-powered mern applications
           </p>
-          <button className={`contact-btn ${btnFade.className}`} ref={btnFade.ref} style={btnFade.style}>Contact Me</button>
+          <button
+            className={`contact-btn ${btnFade.className}`}
+            ref={btnFade.ref}
+            style={btnFade.style}
+            onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            Contact Me
+          </button>
         </div>
       </div>
     </section>
