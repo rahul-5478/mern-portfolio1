@@ -1,9 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useFadeIn } from '../hooks.js';
 
 export default function Hero({ theme, onToggleTheme }) {
   const heroH1Ref = useRef(null);
   const magnetRef = useRef(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const navbarFade = useFadeIn(0);
   const headingFade = useFadeIn(0.15);
@@ -29,16 +30,11 @@ export default function Hero({ theme, onToggleTheme }) {
       heroH1.style.fontSize = lo + 'px';
     }
 
-    // Run immediately (covers cached-font repeat visits)
     fitHeroHeading();
-
-    // Re-run once the actual webfont has finished loading — fallback font
-    // metrics differ from Kanit, so the first fit can be wrong until swap
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(fitHeroHeading);
     }
 
-    // Re-run on any layout/size change of the container itself
     const resizeObserver = new ResizeObserver(() => fitHeroHeading());
     resizeObserver.observe(container);
 
@@ -51,6 +47,21 @@ export default function Hero({ theme, onToggleTheme }) {
       resizeObserver.disconnect();
     };
   }, []);
+
+  // Close mobile menu automatically if the viewport grows back to desktop size
+  useEffect(() => {
+    function handleResize() {
+      if (window.innerWidth >= 640) setMenuOpen(false);
+    }
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Lock page scroll while the mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [menuOpen]);
 
   // Magnet hover + 3D tilt (image stays fixed in place, no dragging)
   useEffect(() => {
@@ -86,17 +97,20 @@ export default function Hero({ theme, onToggleTheme }) {
       <div className="glow-blob b1"></div>
       <div className="glow-blob b2"></div>
 
-      <nav className={`navbar ${navbarFade.className}`} ref={navbarFade.ref} style={navbarFade.style}>
+      <nav className={`navbar ${navbarFade.className} ${menuOpen ? 'menu-open' : ''}`} ref={navbarFade.ref} style={navbarFade.style}>
         <div className="logo">
           <span className="logo-mark">RK</span>
           <span className="logo-text">Rahul<em>.dev</em></span>
         </div>
-        <div className="nav-links">
-          <a href="#about" data-nav="about">About</a>
-          <a href="#services" data-nav="services">Price</a>
-          <a href="#projects" data-nav="projects">Projects</a>
-          <a href="#contact" data-nav="contact">Contact</a>
+
+        <div className={`nav-links ${menuOpen ? 'open' : ''}`}>
+          <a href="#about" data-nav="about" onClick={() => setMenuOpen(false)}>About</a>
+          <a href="#services" data-nav="services" onClick={() => setMenuOpen(false)}>Price</a>
+          <a href="#projects" data-nav="projects" onClick={() => setMenuOpen(false)}>Projects</a>
+          <a href="#contact" data-nav="contact" onClick={() => setMenuOpen(false)}>Contact</a>
+          <a className="resume-btn resume-btn-mobile" href="/Rahul_Kumar_Resume.pdf" download="Rahul_Kumar_Resume.pdf" onClick={() => setMenuOpen(false)}>Resume</a>
         </div>
+
         <div className="nav-actions">
           <a className="resume-btn" href="/Rahul_Kumar_Resume.pdf" download="Rahul_Kumar_Resume.pdf">Resume</a>
           <button className="theme-toggle" onClick={onToggleTheme} aria-label="Toggle theme">
@@ -106,8 +120,19 @@ export default function Hero({ theme, onToggleTheme }) {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="2"/><path d="M12 2V4M12 20V22M4 12H2M22 12H20M19.07 4.93L17.66 6.34M6.34 17.66L4.93 19.07M19.07 19.07L17.66 17.66M6.34 6.34L4.93 4.93" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
             )}
           </button>
+          <button
+            className={`hamburger ${menuOpen ? 'active' : ''}`}
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label="Toggle menu"
+            aria-expanded={menuOpen}
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
         </div>
       </nav>
+      {menuOpen && <div className="nav-backdrop" onClick={() => setMenuOpen(false)}></div>}
 
       <div className="hero-content">
         <div className="hero-heading-wrap">
