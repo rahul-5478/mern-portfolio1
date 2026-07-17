@@ -821,8 +821,10 @@
     align-items:flex-end;
     gap:1rem;
     font-family:'Kanit',sans-serif;
+    pointer-events:none;
   }
   .chat-bubble{
+    pointer-events:auto;
     width:58px;height:58px;
     border-radius:50%;
     border:none;
@@ -857,9 +859,9 @@
     transition:transform .3s cubic-bezier(.25,.1,.25,1), opacity .3s ease;
   }
   .chat-panel.open{
+    pointer-events:auto;
     transform:translateY(0) scale(1);
     opacity:1;
-    pointer-events:auto;
   }
   .chat-header{
     display:flex;align-items:center;justify-content:space-between;
